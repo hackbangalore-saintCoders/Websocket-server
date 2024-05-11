@@ -31,9 +31,11 @@ public class Config implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 
         registry.addHandler(chatHandler,"/chat-socket/*")
-                .addInterceptors(getParametersInterceptors());
+                .addInterceptors(getParametersInterceptors())
+                .setAllowedOrigins("*");
         registry.addHandler(webrtcHandler, "/webrtc-socket/*")
-                .addInterceptors(getParametersInterceptors());
+                .addInterceptors(getParametersInterceptors())
+                .setAllowedOrigins("*");;
 
     }
 
