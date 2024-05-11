@@ -32,26 +32,17 @@ public class WebrtcHandler extends TextWebSocketHandler {
 
         System.out.println(message);
         String payload = message.getPayload();
-        String[] payLoadSplit = payload.split("/");
-        String targetUserId  = payLoadSplit[0].trim();
-        String messageToBeSent = payLoadSplit[1].trim();
-        String userId = WebSocketHelper.getUserIdFromSessionAttribute(session);
 
         Map<String,String> map = new HashMap<>();
-        map.put("sentBy",userId);
-        map.put("message", messageToBeSent);
-        map.put("target",targetUserId);
+        map.put("message", payload);
 
         ObjectMapper objectMapper = new ObjectMapper();
 
         // Convert the map to a JSON string
         String json = objectMapper.writeValueAsString(map);
 
-
-        System.out.println(targetUserId);
-
-
-        webSocketSessionManager.getWebSocketSessions(targetUserId).sendMessage(new TextMessage(json));
+        webSocketSessionManager
+                .getWebSocketSessions(WebSocketHelper.getRoomIdFroSessionAttribute(session), WebSocketHelper.getUserIdFromSessionAttribute(session)).sendMessage(new TextMessage(json));
 
     }
 

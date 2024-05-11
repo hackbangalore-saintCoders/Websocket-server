@@ -33,11 +33,14 @@ public class Config implements WebSocketConfigurer {
         registry.addHandler(chatHandler,"/chat-socket/*")
                 .addInterceptors(getParametersInterceptors())
                 .setAllowedOrigins("*");
-        registry.addHandler(webrtcHandler, "/webrtc-socket/*")
-                .addInterceptors(getParametersInterceptors())
+
+        registry.addHandler(webrtcHandler, "/webrtc-socket/**")
+                .addInterceptors(getParameterWebrtcInterceptors())
                 .setAllowedOrigins("*");;
 
     }
+
+
 
     @Bean
     public HandshakeInterceptor getParametersInterceptors() {
@@ -47,6 +50,26 @@ public class Config implements WebSocketConfigurer {
                 String path = request.getURI().getPath();
                 String userId = WebSocketHelper.getUserIdFromUrl(path);
                 attributes.put(WebSocketHelper.userIdKey, userId);
+                return true;
+            }
+
+            @Override
+            public void afterHandshake(org.springframework.http.server.ServerHttpRequest request, org.springframework.http.server.ServerHttpResponse response, org.springframework.web.socket.WebSocketHandler wsHandler, Exception exception) {
+
+            }
+        };
+    }
+
+    @Bean
+    public HandshakeInterceptor getParameterWebrtcInterceptors() {
+        return new HandshakeInterceptor() {
+            @Override
+            public boolean beforeHandshake(org.springframework.http.server.ServerHttpRequest request, org.springframework.http.server.ServerHttpResponse response, org.springframework.web.socket.WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+                String path = request.getURI().getPath();
+                String userId = WebSocketHelper.getUserIdFromUrl(path);
+                String roomID = WebSocketHelper.getSecondLastPartFromUrl(path);
+                attributes.put(WebSocketHelper.userIdKey, userId);
+                attributes.put(WebSocketHelper.roomId, roomID);
                 return true;
             }
 
